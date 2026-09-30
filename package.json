@@ -1,0 +1,81 @@
+{
+  "name": "scriptflow-studio",
+  "version": "1.3.2",
+  "description": "Offline-first AI script editor and teleprompter for content creators",
+  "main": "dist-electron/main.js",
+  "author": {
+    "name": "ScriptFlow Studio",
+    "email": "support@scriptflow.local"
+  },
+  "homepage": "https://github.com/scriptflow-studio/scriptflow-studio",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"npm:dev:electron\"",
+    "dev:electron": "wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "build": "tsc -b && vite build && npm run build:electron",
+    "build:electron": "tsc -p electron/tsconfig.json",
+    "dist": "npm run build && electron-builder --linux deb",
+    "install:deb": "bash build/install-deb.sh",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.1.1",
+    "better-sqlite3": "^11.8.1",
+    "lucide-react": "^0.468.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^33.3.1",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.scriptflow.studio",
+    "productName": "ScriptFlow Studio",
+    "asar": true,
+    "npmRebuild": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "linux": {
+      "target": ["deb"],
+      "icon": "build/icon.png",
+      "category": "AudioVideo",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "synopsis": "Offline AI script editor and teleprompter",
+      "desktop": {
+        "StartupWMClass": "scriptflow-studio"
+      }
+    },
+    "deb": {
+      "afterInstall": "build/after-install.sh",
+      "fpm": [
+        "--deb-user=root",
+        "--deb-group=root"
+      ],
+      "depends": [
+        "libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6",
+        "xdg-utils", "libatspi2.0-0", "libuuid1", "libsecret-1-0",
+        "python3", "python3-venv", "alsa-utils"
+      ]
+    }
+  }
+}
